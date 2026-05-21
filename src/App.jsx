@@ -19,10 +19,6 @@ function App() {
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
-      const savedRoomId = localStorage.getItem('roomId');
-      if (savedRoomId) {
-        socket.emit('join_room', { roomId: savedRoomId });
-      }
     }
 
     function onDisconnect() {
@@ -44,6 +40,10 @@ function App() {
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.on('connect_error', (error) => {
+      console.error('Socket connect_error', error);
+      setRoomError('Impossible de se connecter au serveur de jeu. Vérifiez que le backend tourne sur le port 3000.');
+    });
     socket.on('game_updated', onGameUpdate);
     socket.on('player_assigned', onPlayerAssigned);
     socket.on('room_full', onRoomFull);

@@ -10,19 +10,21 @@ const Home = () => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = useState("");
   const [error, setError] = useState(null);
+  const [roomSize, setRoomSize] = useState("4");
 
   const generateRoomId = () =>
     Math.random().toString(36).slice(2, 8).toUpperCase();
 
-  const joinRoom = (roomId) => {
+  const joinRoom = (roomId, size, isCreator = false) => {
     localStorage.setItem('roomId', roomId);
-    socket.emit('join_room', { roomId });
+    localStorage.setItem('roomCreator', isCreator ? 'true' : 'false');
+    socket.emit('join_room', { roomId, roomSize: size });
     navigate('/game');
   };
 
   const handleCreateRoom = () => {
     const roomId = generateRoomId();
-    joinRoom(roomId);
+    joinRoom(roomId, Number(roomSize), true);
   };
 
   const handleJoinRoom = () => {
@@ -32,7 +34,7 @@ const Home = () => {
       return;
     }
     setError(null);
-    joinRoom(trimmedRoom);
+    joinRoom(trimmedRoom, undefined, false);
   };
 
   const handleViewRules = () => {
@@ -57,6 +59,22 @@ const Home = () => {
           {Object.values(STONE_TYPES).map((stone) => (
             <Stone key={stone} stoneType={stone} size="large" />
           ))}
+        </div>
+
+        <div className={styles.roomSizeSelector}>
+          <p>Nombre de joueurs</p>
+          <div className={styles.roomSizeButtons}>
+            {[2, 3, 4].map((size) => (
+              <button
+                key={size}
+                type="button"
+                className={`${styles.roomSizeButton} ${roomSize === String(size) ? styles.active : ""}`}
+                onClick={() => setRoomSize(String(size))}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className={styles.actions}>

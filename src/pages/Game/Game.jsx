@@ -10,18 +10,39 @@ import { socket } from '../../socket';
 const Game = () => {
     const navigate = useNavigate();
     const [showBag, setShowBag] = useState(false);
-    const { factories, center, players, currentPlayerId, heldStones, gameState, bag, localPlayerId } = useSelector(state => state.game);
+    const { factories, center, players, currentPlayerId, heldStones, gameState, bag, localPlayerId, playerCount, roomSize, hostPlayerId } = useSelector(state => state.game);
 
     const roomId = localStorage.getItem('roomId') || '------';
     const bagStats = (bag || []).reduce((acc, s) => { acc[s] = (acc[s] || 0) + 1; return acc; }, {});
     const isMyTurn = gameState === 'PLAYING' && localPlayerId === currentPlayerId;
+    const expectedPlayers = roomSize || 4;
+    const isRoomCreator = localPlayerId && localPlayerId === hostPlayerId;
+    const canStartGame = isRoomCreator && playerCount === expectedPlayers;
 
     if (gameState === 'LOBBY') {
         return (
             <div className={styles.waitingRoom}>
-                <h2>En attente du second joueur...</h2>
+                <h2>En attente des joueurs...</h2>
                 <p>Code room : <strong>{roomId}</strong></p>
+                <p>Joueurs connectés : <strong>{playerCount || 1}/{expectedPlayers}</strong></p>
                 <p>Vous êtes le joueur {localPlayerId || '?'}</p>
+                {isRoomCreator ? (
+                    <div className={styles.hostControls}>
+                        <Button
+                            variant="primary"
+                            size="medium"
+                            disabled={!canStartGame}
+                            onClick={() => {
+                                console.log('Joueur 1 clique sur Démarrer', { isRoomCreator, canStartGame, playerCount, expectedPlayers, hostPlayerId, localPlayerId });
+                                socket.emit('start_game');
+                            }}
+                        >
+                            {canStartGame ? 'Démarrer la partie' : 'En attente des joueurs...'}
+                        </Button>
+                    </div>
+                ) : (
+                    <p>En attente du créateur pour démarrer la partie.</p>
+                )}
                 <Button variant="ghost" size="small" onClick={() => navigate('/')}>Retour à l'accueil</Button>
             </div>
         );
