@@ -1,5 +1,3 @@
-// azul_backend/server.js
-
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -86,7 +84,6 @@ const calculatePoints = (wall, row, col) => {
 
 const rooms = {};
 
-// Initialise un salon vide en mode LOBBY
 function createNewRoom(roomId, roomSize = 4) {
   return {
     maxPlayers: roomSize,
@@ -99,7 +96,7 @@ function createNewRoom(roomId, roomSize = 4) {
       nextFirstPlayerId: 1,
       heldStones: null,
       firstStonePicked: false,
-      gameState: "LOBBY", // 👈 Démarre en attente
+      gameState: "LOBBY",
       bag: [],
       discard: [],
       playerCount: 0,
@@ -109,7 +106,6 @@ function createNewRoom(roomId, roomSize = 4) {
   };
 }
 
-// Remplit le sac et distribue les tuiles uniquement au lancement réel
 function startRoomGame(room) {
   let initialBag = [];
   Object.values(STONE_TYPES).forEach((type) => {
@@ -129,7 +125,7 @@ function startRoomGame(room) {
     createEmptyPlayer(index + 1),
   );
   room.gameState.bag = initialBag;
-  room.gameState.gameState = "PLAYING"; // 👈 C'est parti !
+  room.gameState.gameState = "PLAYING";
   room.gameState.currentPlayerId = 1;
 }
 
@@ -149,7 +145,6 @@ io.on("connection", (socket) => {
     const room = rooms[roomId];
 
     if (room.maxPlayers && requestedSize && requestedSize !== room.maxPlayers) {
-      // Ignore the requested size if the room already exists
       roomSize = room.maxPlayers;
     }
 

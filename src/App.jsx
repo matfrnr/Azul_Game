@@ -1,11 +1,9 @@
-// src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { socket } from './socket';
 import { updateGameState, setLocalPlayerId } from './store/gameSlice';
 
-// Importation de vos pages et styles
 import Home from './pages/Home/Home';
 import Game from './pages/Game/Game';
 import Rules from './pages/Rules/Rules';
@@ -73,7 +71,6 @@ function AppContent() {
 
   return (
     <>
-      {/* Petit bandeau indicateur de l'état de la connexion en temps réel */}
       <div
         style={{
           background: isConnected ? '#4CAF50' : '#F44336',

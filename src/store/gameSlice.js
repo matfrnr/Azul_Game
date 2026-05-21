@@ -1,4 +1,3 @@
-// src/store/gameSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import { STONE_TYPES, FACTORY_COUNT } from "../constants";
 
@@ -81,7 +80,6 @@ const gameSlice = createSlice({
     localPlayerId: null,
   },
   reducers: {
-    // Intégration correcte de la mise à jour réseau dans les reducers
     updateGameState: (state, action) => {
       return {
         ...state,

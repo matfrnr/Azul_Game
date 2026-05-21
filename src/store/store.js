@@ -3,7 +3,6 @@ import gameReducer from './gameSlice';
 
 export const store = configureStore({
   reducer: {
-    // Les reducers seront ajoutés ici
     game: gameReducer,
   },
   middleware: (getDefaultMiddleware) =>

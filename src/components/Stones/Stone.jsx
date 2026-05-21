@@ -3,14 +3,12 @@ import PropTypes from "prop-types";
 import { STONE_COLORS, STONE_TYPES } from "../../constants";
 import styles from "./Stone.module.scss";
 
-// Import stone images
 import mindStone from "../../assets/stones/mind.png";
 import powerStone from "../../assets/stones/power.png";
 import realityStone from "../../assets/stones/reality.png";
 import spaceStone from "../../assets/stones/space.png";
 import timeStone from "../../assets/stones/time.png";
 
-// Map stone types to their images
 const STONE_IMAGES = {
   [STONE_TYPES.MIND]: mindStone,
   [STONE_TYPES.REALITY]: realityStone,
