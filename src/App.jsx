@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { socket } from './socket';
 import { updateGameState, setLocalPlayerId } from './store/gameSlice';
 
@@ -11,14 +11,19 @@ import Game from './pages/Game/Game';
 import Rules from './pages/Rules/Rules';
 import './styles/main.scss';
 
-function App() {
+function AppContent() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [roomError, setRoomError] = useState(null);
 
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
+      const savedRoomId = localStorage.getItem('roomId');
+      if (savedRoomId && location.pathname === '/game') {
+        socket.emit('join_room', { roomId: savedRoomId });
+      }
     }
 
     function onDisconnect() {
@@ -36,13 +41,14 @@ function App() {
     function onRoomFull() {
       setRoomError('Cette room est pleine ou impossible à rejoindre.');
       localStorage.removeItem('roomId');
+      localStorage.removeItem('roomCreator');
     }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('connect_error', (error) => {
       console.error('Socket connect_error', error);
-      setRoomError('Impossible de se connecter au serveur de jeu. Vérifiez que le backend tourne sur le port 3000.');
+      setRoomError('Impossible de se connecter au serveur de jeu. Vérifiez que le backend tourne.');
     });
     socket.on('game_updated', onGameUpdate);
     socket.on('player_assigned', onPlayerAssigned);
@@ -53,15 +59,16 @@ function App() {
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('connect_error');
       socket.off('game_updated', onGameUpdate);
       socket.off('player_assigned', onPlayerAssigned);
       socket.off('room_full', onRoomFull);
       socket.disconnect();
     };
-  }, [dispatch]);
+  }, [dispatch, location.pathname]);
 
   return (
-    <BrowserRouter>
+    <>
       {/* Petit bandeau indicateur de l'état de la connexion en temps réel */}
       <div
         style={{
@@ -90,12 +97,19 @@ function App() {
         </div>
       )}
 
-      {/* Configuration de vos routes de navigation */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/game" element={<Game />} />
         <Route path="/rules" element={<Rules />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   );
 }
