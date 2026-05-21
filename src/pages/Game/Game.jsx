@@ -1,25 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Stone } from '../../components/Stones';
-import { initGame, pickFromFactory, pickFromCenter, placeStones } from '../../store/gameSlice';
 import { STONE_TYPES } from '../../constants';
 import styles from './Game.module.scss';
 import { Button } from '../../components/Button';
 import { socket } from '../../socket';
 
 const Game = () => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [showBag, setShowBag] = useState(false);
     const { factories, center, players, currentPlayerId, heldStones, gameState, bag, localPlayerId } = useSelector(state => state.game);
 
-    useEffect(() => { if (players.length === 0) dispatch(initGame()); }, [dispatch, players]);
+    const roomId = localStorage.getItem('roomId') || '------';
+    const bagStats = (bag || []).reduce((acc, s) => { acc[s] = (acc[s] || 0) + 1; return acc; }, {});
+    const isMyTurn = gameState === 'PLAYING' && localPlayerId === currentPlayerId;
+
+    if (gameState === 'LOBBY') {
+        return (
+            <div className={styles.waitingRoom}>
+                <h2>En attente du second joueur...</h2>
+                <p>Code room : <strong>{roomId}</strong></p>
+                <p>Vous êtes le joueur {localPlayerId || '?'}</p>
+                <Button variant="ghost" size="small" onClick={() => navigate('/')}>Retour à l'accueil</Button>
+            </div>
+        );
+    }
 
     if (players.length === 0) return null;
-
-    const bagStats = (bag || []).reduce((acc, s) => { acc[s] = (acc[s] || 0) + 1; return acc; }, {});
-    const isMyTurn = localPlayerId === currentPlayerId;
 
     const WALL_ORDER = [
         [STONE_TYPES.SPACE, STONE_TYPES.MIND, STONE_TYPES.REALITY, STONE_TYPES.POWER, STONE_TYPES.TIME],

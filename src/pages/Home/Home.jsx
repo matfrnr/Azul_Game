@@ -1,21 +1,38 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/Button";
 import { Stone } from "../../components/Stones";
 import { STONE_TYPES } from "../../constants";
 import styles from "./Home.module.scss";
-import { useDispatch } from "react-redux";
-import { initGame } from "../../store/gameSlice";
+import { socket } from "../../socket";
 
 const Home = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const [roomName, setRoomName] = useState("");
+  const [error, setError] = useState(null);
 
-  const handleStartGame = () => {
-    // 1. Initialise les données du jeu dans le store
-    dispatch(initGame({ playerCount: 2 }));
-    // 2. Navigue vers la page de jeu
-    navigate("/game");
+  const generateRoomId = () =>
+    Math.random().toString(36).slice(2, 8).toUpperCase();
+
+  const joinRoom = (roomId) => {
+    localStorage.setItem('roomId', roomId);
+    socket.emit('join_room', { roomId });
+    navigate('/game');
+  };
+
+  const handleCreateRoom = () => {
+    const roomId = generateRoomId();
+    joinRoom(roomId);
+  };
+
+  const handleJoinRoom = () => {
+    const trimmedRoom = roomName.trim().toUpperCase();
+    if (!trimmedRoom) {
+      setError('Veuillez entrer un code de room valide.');
+      return;
+    }
+    setError(null);
+    joinRoom(trimmedRoom);
   };
 
   const handleViewRules = () => {
@@ -43,12 +60,29 @@ const Home = () => {
         </div>
 
         <div className={styles.actions}>
-          <Button variant="primary" size="large" onClick={handleStartGame}>
-            Start New Game
+          <Button variant="primary" size="large" onClick={handleCreateRoom}>
+            Créer une room
           </Button>
           <Button variant="ghost" size="large" onClick={handleViewRules}>
-            View Rules
+            Voir les règles
           </Button>
+        </div>
+
+        <div className={styles.joinRoom}>
+          <p>Rejoindre une room existante</p>
+          <div className={styles.joinActions}>
+            <input
+              type="text"
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+              placeholder="Code room"
+              className={styles.roomInput}
+            />
+            <Button variant="secondary" size="medium" onClick={handleJoinRoom}>
+              Rejoindre
+            </Button>
+          </div>
+          {error && <p className={styles.error}>{error}</p>}
         </div>
 
         <footer className={styles.footer}>

@@ -14,12 +14,15 @@ import './styles/main.scss';
 function App() {
   const dispatch = useDispatch();
   const [isConnected, setIsConnected] = useState(socket.connected);
+  const [roomError, setRoomError] = useState(null);
 
   useEffect(() => {
     function onConnect() {
       setIsConnected(true);
-      // 👈 REJOINDRE LE SALON DÈS LA CONNEXION
-      socket.emit("join_room", { roomId: "room1" });
+      const savedRoomId = localStorage.getItem('roomId');
+      if (savedRoomId) {
+        socket.emit('join_room', { roomId: savedRoomId });
+      }
     }
 
     function onDisconnect() {
@@ -30,15 +33,20 @@ function App() {
       dispatch(updateGameState(serverState));
     }
 
-    // 👈 CAPTURER LE RÔLE ATTRIBUÉ PAR LE SERVEUR
     function onPlayerAssigned({ playerId }) {
       dispatch(setLocalPlayerId(playerId));
+    }
+
+    function onRoomFull() {
+      setRoomError('Cette room est pleine ou impossible à rejoindre.');
+      localStorage.removeItem('roomId');
     }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('game_updated', onGameUpdate);
-    socket.on('player_assigned', onPlayerAssigned); // 👈 Ajouter l'écouteur
+    socket.on('player_assigned', onPlayerAssigned);
+    socket.on('room_full', onRoomFull);
 
     socket.connect();
 
@@ -46,7 +54,8 @@ function App() {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
       socket.off('game_updated', onGameUpdate);
-      socket.off('player_assigned', onPlayerAssigned); // 👈 Nettoyer
+      socket.off('player_assigned', onPlayerAssigned);
+      socket.off('room_full', onRoomFull);
       socket.disconnect();
     };
   }, [dispatch]);
@@ -67,6 +76,19 @@ function App() {
       >
         {isConnected ? "🟢 Session de jeu en ligne connectée" : "🔴 Déconnecté du serveur de jeu"}
       </div>
+      {roomError && (
+        <div
+          style={{
+            background: '#ffcccc',
+            color: '#660000',
+            padding: '8px',
+            textAlign: 'center',
+            fontSize: '13px',
+          }}
+        >
+          {roomError}
+        </div>
+      )}
 
       {/* Configuration de vos routes de navigation */}
       <Routes>
