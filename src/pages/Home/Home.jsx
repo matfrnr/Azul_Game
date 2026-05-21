@@ -18,6 +18,9 @@ const Home = () => {
   const joinRoom = (roomId, size, isCreator = false) => {
     localStorage.setItem('roomId', roomId);
     localStorage.setItem('roomCreator', isCreator ? 'true' : 'false');
+    if (size) {
+      localStorage.setItem('roomSize', String(size));
+    }
     socket.emit('join_room', { roomId, roomSize: size });
     navigate('/game');
   };

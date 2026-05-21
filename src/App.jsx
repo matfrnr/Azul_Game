@@ -21,8 +21,12 @@ function AppContent() {
     function onConnect() {
       setIsConnected(true);
       const savedRoomId = localStorage.getItem('roomId');
+      const savedRoomSize = localStorage.getItem('roomSize');
       if (savedRoomId && location.pathname === '/game') {
-        socket.emit('join_room', { roomId: savedRoomId });
+        socket.emit('join_room', {
+          roomId: savedRoomId,
+          roomSize: savedRoomSize ? Number(savedRoomSize) : undefined,
+        });
       }
     }
 
