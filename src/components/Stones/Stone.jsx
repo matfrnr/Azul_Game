@@ -22,19 +22,25 @@ const STONE_IMAGES = {
 export const Stone = ({ stoneType, size = "medium", className = "" }) => {
   const color = STONE_COLORS[stoneType];
   const image = STONE_IMAGES[stoneType];
+  const backgroundColor = color ? `${color}33` : "rgba(255,255,255,0.15)";
+  const borderColor = color ? `${color}bb` : "rgba(255,255,255,0.35)";
+  const boxShadow = color ? `0 0 18px ${color}55` : "0 0 15px rgba(0,0,0,0.25)";
 
   return (
     <div
       className={`${styles.stone} ${styles[size]} ${className}`}
       data-stone-type={stoneType}
+      style={{ backgroundColor, boxShadow, border: `1px solid ${borderColor}` }}
     >
-      {image && (
+      {image ? (
         <img
           src={image}
           alt={`${stoneType} stone`}
           className={styles.stoneImage}
           style={{ filter: `drop-shadow(0 0 10px ${color})` }}
         />
+      ) : (
+        <span className={styles.stoneLabel}>{stoneType?.[0] || "?"}</span>
       )}
       <div className={styles.glow} style={{ backgroundColor: color }} />
     </div>

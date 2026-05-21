@@ -14,11 +14,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-      circle,
-      rgba(255, 255, 255, 0.3) 0%,
-      transparent 70%
-    );
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
     border-radius: $radius-sm;
     pointer-events: none;
     animation: shine 2s ease-in-out infinite;
@@ -44,6 +40,13 @@
   transition: filter $transition-normal ease;
 }
 
+.stoneLabel {
+  color: white;
+  font-weight: 700;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+  z-index: 1;
+}
+
 .stone:hover .stoneImage {
   filter: brightness(1.2);
 }
@@ -52,14 +55,14 @@
   position: absolute;
   inset: -4px;
   border-radius: $radius-sm;
-  opacity: 0;
+  opacity: 0.35;
   filter: blur(10px);
   transition: opacity $transition-normal ease;
   z-index: -1;
 }
 
 .stone:hover .glow {
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 // Sizes
