@@ -50,6 +50,14 @@ npm install
 npm run dev
 ```
 
+### Lancer le backend
+
+```bash
+npm azul_backend
+npm install
+node server.js
+```
+
 L’application sera disponible sur **http://localhost:3000**.
 
 ## 📂 Structure du projet
